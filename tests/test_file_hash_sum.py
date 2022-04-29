@@ -5,10 +5,18 @@ from file_hash import file_hash_sum
 @pytest.mark.parametrize(
     "file_name, hash_algorithm, expected_result",
     [
-        ("test.txt", "md5", "8dcfb1fe3591de419bae817d26c11d9f"),
-        ("test.txt", "sha1", "ba877c6918677766aa572472bf209fabcb90c798"),
         (
-            "test.txt",
+            "tests/test_data/test.txt",
+            "md5",
+            "8dcfb1fe3591de419bae817d26c11d9f",
+        ),
+        (
+            "tests/test_data/test.txt",
+            "sha1",
+            "ba877c6918677766aa572472bf209fabcb90c798",
+        ),
+        (
+            "tests/test_data/test.txt",
             "whirlpool",
             "0d4c8b5ad5e058d1941e"
             "7927ec4aa1b5f8d5de7b"
