@@ -1,4 +1,5 @@
 import hashlib
+import io
 import os
 
 
@@ -45,4 +46,15 @@ def files_hash_sum(files_hash: list, hash_algorithm: str) -> str:
     h = hashlib.new(hash_algorithm)
     for file_hash in files_hash:
         h.update(file_hash.encode())
+    return h.hexdigest()
+
+
+def stdin_hash_sum(stdin: io.TextIOWrapper, hash_algorithm: str) -> str:
+    """
+    :param stdin: stdin TextIOWrapper
+    :param hash_algorithm: hashing algorithms for stdin
+    :return: hash sum of the stdin
+    """
+    h = hashlib.new(hash_algorithm)
+    h.update(stdin.read().encode())
     return h.hexdigest()
