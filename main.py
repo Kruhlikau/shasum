@@ -1,3 +1,4 @@
+import io
 from functools import partial
 from models.database import HashSum, safe_data, check_data
 import argparse
@@ -41,8 +42,8 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    if args.files is not sys.stdin:
-        with Pool() as pool:
+    with Pool() as pool:
+        if args.files is not sys.stdin:
             files = parse_dir(args.files)
             logger.debug(
                 f" [files_hash_sum] was called with: files - "
@@ -52,13 +53,13 @@ if __name__ == "__main__":
                 partial(file_hash_sum, hash_algorithm=args.algorithm), files
             )
             hash_sum = files_hash_sum(res.get(), args.algorithm)
-            if args.save:
-                safe_data(HashSum, args.files, hash_sum)
-            if args.check:
-                check_result = check_data(HashSum, args.files, hash_sum)
-                logger.info(f" [check_result] - {check_result}")
-            logger.info(f" [hash_sum] - {hash_sum}")
-            print(hash_sum, args.files)
-    else:
-        result = stdin_hash_sum(args.files, args.algorithm)
-        print(result, "-")
+        else:
+            hash_sum = stdin_hash_sum(args.files, args.algorithm)
+        if args.save:
+            safe_data(HashSum, args.files, hash_sum)
+        if args.check:
+            check_result = check_data(HashSum, args.files, hash_sum)
+            logger.info(f" [check_result] - {check_result}")
+        logger.info(f" [hash_sum] - {hash_sum}")
+        condition = type(args.files) is not io.TextIOWrapper
+        print(hash_sum, args.files if condition else "-")
