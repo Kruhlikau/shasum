@@ -6,8 +6,8 @@ import logging
 import sys
 
 # Local imports
-from file_hash import file_hash_sum, parse_dir, files_hash_sum, stdin_hash_sum
-from models.database import HashSum, safe_data, check_data
+from file_hash import file_hash_sum, parse_dir, stdin_hash_sum, print_res
+from models.database import HashSum, check_data, save_data
 
 # Related third party imports
 import argparse
@@ -55,17 +55,17 @@ if __name__ == "__main__":
                 f" [files_hash_sum] was called with: files - "
                 f"[{files}], hash_algorithm - [{args.algorithm}]"
             )
-            res = pool.map_async(
-                partial(file_hash_sum, hash_algorithm=args.algorithm), files
+            async_res = pool.map_async(
+                partial(file_hash_sum, hash_algorithm=args.algorithm),
+                files,
+                callback=print_res,
             )
-            hash_sum = files_hash_sum(res.get(), args.algorithm)
+            async_res.get()
+            if args.save:
+                save_data(async_res.get(), file_path=args.files)
         else:
             hash_sum = stdin_hash_sum(args.files, args.algorithm)
-        if args.save:
-            safe_data(HashSum, args.files, hash_sum)
         if args.check:
             check_result = check_data(HashSum, args.files, hash_sum)
             logger.info(f" [check_result] - {check_result}")
-        logger.info(f" [hash_sum] - {hash_sum}")
         condition = type(args.files) is not io.TextIOWrapper
-        print(hash_sum, args.files if condition else "-")

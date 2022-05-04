@@ -4,11 +4,10 @@ import io
 import os
 
 
-def file_hash_sum(file_name: str, hash_algorithm: str) -> str:
+def file_hash_sum(file_name: str, hash_algorithm: str):
     """
     The function takes a file and a hashing algorithm as arguments,
      returns the hash sum
-
     :rtype: str
     :param file_name: file for hash calculation
     :param hash_algorithm: hashing algorithms for a file
@@ -17,7 +16,7 @@ def file_hash_sum(file_name: str, hash_algorithm: str) -> str:
     h = hashlib.new(hash_algorithm)
     with open(file_name, "rb") as f:
         h.update(f.read())
-    return h.hexdigest()
+    return h.hexdigest(), file_name
 
 
 def parse_dir(path: str) -> list:
@@ -38,18 +37,6 @@ def parse_dir(path: str) -> list:
     return res
 
 
-def files_hash_sum(files_hash: list, hash_algorithm: str) -> str:
-    """
-    :param files_hash: file hash list
-    :param hash_algorithm: hashing algorithms for a file
-    :return: final hash sum of the files
-    """
-    h = hashlib.new(hash_algorithm)
-    for file_hash in files_hash:
-        h.update(file_hash.encode())
-    return h.hexdigest()
-
-
 def stdin_hash_sum(stdin: io.TextIOWrapper, hash_algorithm: str) -> str:
     """
     :param stdin: stdin TextIOWrapper
@@ -59,3 +46,12 @@ def stdin_hash_sum(stdin: io.TextIOWrapper, hash_algorithm: str) -> str:
     h = hashlib.new(hash_algorithm)
     h.update(stdin.read().encode())
     return h.hexdigest()
+
+
+def print_res(data: list) -> None:
+    """
+    :param data: list of tuples[hash_sum, file_path]
+    :return: None
+    """
+    for hash_sum, file in data:
+        print(f"{hash_sum} {file}")

@@ -11,22 +11,28 @@ from file_hash import file_hash_sum
         (
             "tests/test_data/test.txt",
             "md5",
-            "8dcfb1fe3591de419bae817d26c11d9f",
+            ("8dcfb1fe3591de419bae817d26c11d9f", "tests/test_data/test.txt"),
         ),
         (
             "tests/test_data/test.txt",
             "sha1",
-            "ba877c6918677766aa572472bf209fabcb90c798",
+            (
+                "ba877c6918677766aa572472bf209fabcb90c798",
+                "tests/test_data/test.txt",
+            ),
         ),
         (
             "tests/test_data/test.txt",
             "whirlpool",
-            "0d4c8b5ad5e058d1941e"
-            "7927ec4aa1b5f8d5de7b"
-            "afc8d5cc0f36594c"
-            "5322e4b9c44388e701788"
-            "058dee2b4c149a47891824fa"
-            "5558414049fa5e8dc5c04b338f9",
+            (
+                "0d4c8b5ad5e058d1941e"
+                "7927ec4aa1b5f8d5de7b"
+                "afc8d5cc0f36594c"
+                "5322e4b9c44388e701788"
+                "058dee2b4c149a47891824fa"
+                "5558414049fa5e8dc5c04b338f9",
+                "tests/test_data/test.txt",
+            ),
         ),
     ],
 )
