@@ -1,4 +1,7 @@
+# Standard library imports
 from typing import Any
+
+# Related third party imports
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.session import sessionmaker
@@ -22,7 +25,7 @@ class HashSum(Base):
 Base.metadata.create_all(engine)
 
 
-def safe_data(table, file_path: str, hash_sum: str):
+def safe_data(table, file_path: str, hash_sum: str) -> None:
     """
 
     :param table: db for data

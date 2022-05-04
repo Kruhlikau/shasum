@@ -1,4 +1,7 @@
+# Related third party imports
 import pytest
+
+# Local imports
 from file_hash import file_hash_sum
 
 

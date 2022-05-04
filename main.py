@@ -1,12 +1,18 @@
+# Standard library imports
 import io
 from functools import partial
-from models.database import HashSum, safe_data, check_data
-import argparse
 import hashlib
 import logging
-from file_hash import file_hash_sum, parse_dir, files_hash_sum, stdin_hash_sum
-from multiprocessing import Pool
 import sys
+
+# Local imports
+from file_hash import file_hash_sum, parse_dir, files_hash_sum, stdin_hash_sum
+from models.database import HashSum, safe_data, check_data
+
+# Related third party imports
+import argparse
+from multiprocessing import Pool
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
