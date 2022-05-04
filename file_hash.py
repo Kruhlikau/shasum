@@ -9,7 +9,7 @@ def file_hash_sum(file_name: str, hash_algorithm: str) -> str:
 
     :rtype: str
     :param file_name: file for hash calculation
-    :param hash_algorithm: hashing algorithms for a file:
+    :param hash_algorithm: hashing algorithms for a file
     :return: hash sum of the file
     """
     h = hashlib.new(hash_algorithm)
@@ -36,8 +36,13 @@ def parse_dir(path: str) -> list:
     return res
 
 
-def files_hash_sum(files_hash, hash_algorithm):
+def files_hash_sum(files_hash: list, hash_algorithm: str) -> str:
+    """
+    :param files_hash: file hash list
+    :param hash_algorithm: hashing algorithms for a file
+    :return: final hash sum of the files
+    """
     h = hashlib.new(hash_algorithm)
-    for hash in files_hash:
-        h.update(hash.encode())
+    for file_hash in files_hash:
+        h.update(file_hash.encode())
     return h.hexdigest()
