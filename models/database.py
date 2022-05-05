@@ -1,12 +1,14 @@
 # Standard library imports
 from typing import Any
-import os
 
 # Related third party imports
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.session import sessionmaker
-from sqlalchemy import Column, String, Integer, and_
+from sqlalchemy import Column, String, Integer
+
+# Local imports
+from file_hash import check_path
 
 Base: Any = declarative_base()
 engine = create_engine("sqlite:///hash_sum.db", echo=False)
@@ -25,18 +27,19 @@ class HashSum(Base):
 Base.metadata.create_all(engine)
 
 
-def check_data(table, file_path: str, hash_sum: str) -> bool:
+def check_data(file_path: str, result: list) -> None:
     """
-
-    :param table: db for data check
+    check result with output[hash_sum file_path OK/NOT OK]
     :param file_path: directory path
-    :param hash_sum: hash sum of the file
-    :return: check result[bool]
+    :param result: list of tuples[hash_sum, file_path]
+    :return: None
     """
-    query = session.query(table).filter(
-        and_(table.file_path == file_path, table.hash_sum != hash_sum)
-    )
-    return False if query.first() else True
+    path = check_path(file_path)
+    query = session.query(HashSum).filter(HashSum.file_path == path)
+    with open(f"results/{query.first()}") as f:
+        for num, line in enumerate(f):
+            condition = line.split()[0] == result[num][0]
+            print(line[:-1], "OK" if condition else "NOT OK")
 
 
 def save_data(data: list, file_path: str) -> None:
@@ -45,13 +48,10 @@ def save_data(data: list, file_path: str) -> None:
     :param file_path: directory path
     :return: None
     """
-    if os.path.isfile(file_path):
-        path = file_path.split("/")[-1]
-    else:
-        path = f'{file_path.split("/")[-2]}.txt'
+    path = check_path(file_path)
     with open(f"results/{path}", "w") as f:
         for hash_sum, file in data:
             f.write(f"{hash_sum} {file}\n")
-    res = HashSum(file_path=f"results/{path}")
+    res = HashSum(file_path=f"{path}")
     session.add(res)
     session.commit()

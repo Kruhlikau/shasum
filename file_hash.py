@@ -55,3 +55,15 @@ def print_res(data: list) -> None:
     """
     for hash_sum, file in data:
         print(f"{hash_sum} {file}")
+
+
+def check_path(file_path: str) -> str:
+    """
+
+    :param file_path: directory path
+    :return: file_path.txt
+    """
+    if os.path.isfile(file_path):
+        return f'{file_path.split("/")[-1].split(".")[0]}.txt'
+    else:
+        return f'{file_path.split("/")[-2]}.txt'

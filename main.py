@@ -7,7 +7,7 @@ import sys
 
 # Local imports
 from file_hash import file_hash_sum, parse_dir, stdin_hash_sum, print_res
-from models.database import HashSum, check_data, save_data
+from models.database import check_data, save_data
 
 # Related third party imports
 import argparse
@@ -58,14 +58,14 @@ if __name__ == "__main__":
             async_res = pool.map_async(
                 partial(file_hash_sum, hash_algorithm=args.algorithm),
                 files,
-                callback=print_res,
+                callback=print_res if not args.check else None,
             )
             async_res.get()
             if args.save:
                 save_data(async_res.get(), file_path=args.files)
+            if args.check:
+                check_data(args.files, async_res.get())
         else:
             hash_sum = stdin_hash_sum(args.files, args.algorithm)
-        if args.check:
-            check_result = check_data(HashSum, args.files, hash_sum)
-            logger.info(f" [check_result] - {check_result}")
+            # logger.info(f" [check_result] - {check_result}")
         condition = type(args.files) is not io.TextIOWrapper
