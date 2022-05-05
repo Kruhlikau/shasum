@@ -1,5 +1,4 @@
 # Standard library imports
-import io
 from functools import partial
 import hashlib
 import logging
@@ -12,7 +11,6 @@ from models.database import check_data, save_data
 # Related third party imports
 import argparse
 from multiprocessing import Pool
-
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -65,7 +63,8 @@ if __name__ == "__main__":
                 save_data(async_res.get(), file_path=args.files)
             if args.check:
                 check_data(args.files, async_res.get())
+            sys.exit(0)
         else:
             hash_sum = stdin_hash_sum(args.files, args.algorithm)
-            # logger.info(f" [check_result] - {check_result}")
-        condition = type(args.files) is not io.TextIOWrapper
+            print(hash_sum, "-")
+            sys.exit(0)
