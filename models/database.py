@@ -36,11 +36,14 @@ def check_data(file_path: str, result: list) -> None:
     """
     path = check_path(file_path)
     query = session.query(HashSum).filter(HashSum.file_path == path)
-    with open(f"results/{query.first()}") as f:
-        for num, line in enumerate(f):
-            condition = line.split()[0] == result[num][0]
-            res = "OK" if condition else "NOT OK"
-            console_logger.info(f"{line[:-1]} {res}")
+    try:
+        with open(f"results/{query.first()}") as f:
+            for num, line in enumerate(f):
+                condition = line.split()[0] == result[num][0]
+                res = "OK" if condition else "NOT OK"
+                console_logger.info(f"{line[:-1]} {res}")
+    except FileNotFoundError:
+        console_logger.error("No such file or directory to check in db")
 
 
 def save_data(data: list, file_path: str) -> None:
