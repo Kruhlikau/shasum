@@ -2,6 +2,12 @@
 import hashlib
 import io
 import os
+import logging
+
+console_logger = logging.getLogger(__name__)
+console_logger.setLevel(logging.INFO)
+console_out = logging.StreamHandler()
+console_logger.addHandler(console_out)
 
 
 def file_hash_sum(file_name: str, hash_algorithm: str):
@@ -54,12 +60,11 @@ def print_res(data: list) -> None:
     :return: None
     """
     for hash_sum, file in data:
-        print(f"{hash_sum} {file}")
+        console_logger.info(f"{hash_sum} {file}")
 
 
 def check_path(file_path: str) -> str:
     """
-
     :param file_path: directory path
     :return: file_path.txt
     """

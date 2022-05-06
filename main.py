@@ -5,7 +5,13 @@ import logging
 import sys
 
 # Local imports
-from file_hash import file_hash_sum, parse_dir, stdin_hash_sum, print_res
+from file_hash import (
+    file_hash_sum,
+    parse_dir,
+    stdin_hash_sum,
+    print_res,
+    console_logger,
+)
 from models.database import check_data, save_data
 
 # Related third party imports
@@ -18,6 +24,7 @@ formatter = logging.Formatter("[%(levelname)s]:%(message)s")
 file_handler = logging.FileHandler("logs.log")
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -66,5 +73,5 @@ if __name__ == "__main__":
             sys.exit(0)
         else:
             hash_sum = stdin_hash_sum(args.files, args.algorithm)
-            print(hash_sum, "-")
+            console_logger.info(hash_sum, "-")
             sys.exit(0)

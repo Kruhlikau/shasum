@@ -8,7 +8,7 @@ from sqlalchemy.orm.session import sessionmaker
 from sqlalchemy import Column, String, Integer
 
 # Local imports
-from file_hash import check_path
+from file_hash import check_path, console_logger
 
 Base: Any = declarative_base()
 engine = create_engine("sqlite:///hash_sum.db", echo=False)
@@ -39,7 +39,8 @@ def check_data(file_path: str, result: list) -> None:
     with open(f"results/{query.first()}") as f:
         for num, line in enumerate(f):
             condition = line.split()[0] == result[num][0]
-            print(line[:-1], "OK" if condition else "NOT OK")
+            res = "OK" if condition else "NOT OK"
+            console_logger.info(f"{line[:-1]} {res}")
 
 
 def save_data(data: list, file_path: str) -> None:
