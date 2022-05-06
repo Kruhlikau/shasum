@@ -20,12 +20,13 @@ Here `env` - name of `virtualenv`
 `pip install -r requirements.txt`
 
 **To start using the script, enter the following command in the console:**
-**`python3 shasum.py [file_name] [hash_algorithm] --save --check`**
+**`python3 main.py [-h] [-f FILES] [-a ALGORITHM] [-s] [-c]`**
 
 **where**:
-* ### file_name - file for hash calculation
-* ### hash_algorithm - hashing algorithms for a file:
+* ###  -h, --help: show this help message and exit
+* ###  -f FILES, --files FILES(With no FILE, or when FILE is -, read standard input.): files for hash calculation
+* ### -a ALGORITHM, --algorithm ALGORITHM - hashing algorithms for a files:
     **md4, sha512, sha512_224, sha224, shake_128, sha384, md5, sha3_256, md5-sha1, sha3_224, sha512_256, sm3, sha3_384, blake2s,sha3_512, sha1, sha256, ripemd160, whirlpool, blake2b, shake_256**
-* ### --save[True/False] - safe result to db
-* ### --check[True/False] - hash diff comparison
+* ### -s, --save: safe result to db
+* ### -c, --check: hash diff comparison
 

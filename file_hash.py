@@ -1,21 +1,28 @@
+# Standard library imports
 import hashlib
+import io
 import os
+import logging
+
+console_logger = logging.getLogger(__name__)
+console_logger.setLevel(logging.INFO)
+console_out = logging.StreamHandler()
+console_logger.addHandler(console_out)
 
 
-def file_hash_sum(file_name: str, hash_algorithm: str) -> str:
+def file_hash_sum(file_name: str, hash_algorithm: str):
     """
     The function takes a file and a hashing algorithm as arguments,
      returns the hash sum
-
     :rtype: str
     :param file_name: file for hash calculation
-    :param hash_algorithm: hashing algorithms for a file:
+    :param hash_algorithm: hashing algorithms for a file
     :return: hash sum of the file
     """
     h = hashlib.new(hash_algorithm)
     with open(file_name, "rb") as f:
         h.update(f.read())
-    return h.hexdigest()
+    return h.hexdigest(), file_name
 
 
 def parse_dir(path: str) -> list:
@@ -36,8 +43,32 @@ def parse_dir(path: str) -> list:
     return res
 
 
-def files_hash_sum(files_hash, hash_algorithm):
+def stdin_hash_sum(stdin: io.TextIOWrapper, hash_algorithm: str) -> str:
+    """
+    :param stdin: stdin TextIOWrapper
+    :param hash_algorithm: hashing algorithms for stdin
+    :return: hash sum of the stdin
+    """
     h = hashlib.new(hash_algorithm)
-    for hash in files_hash:
-        h.update(hash.encode())
+    h.update(stdin.read().encode())
     return h.hexdigest()
+
+
+def print_res(data: list) -> None:
+    """
+    :param data: list of tuples[hash_sum, file_path]
+    :return: None
+    """
+    for hash_sum, file in data:
+        console_logger.info(f"{hash_sum} {file}")
+
+
+def check_path(file_path: str) -> str:
+    """
+    :param file_path: directory path
+    :return: file_path.txt
+    """
+    if os.path.isfile(file_path):
+        return f'{file_path.split("/")[-1].split(".")[0]}.txt'
+    else:
+        return f'{file_path.split("/")[-2]}.txt'
