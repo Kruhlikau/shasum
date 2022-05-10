@@ -8,7 +8,7 @@ from sqlalchemy.orm.session import sessionmaker
 from sqlalchemy import Column, String, Integer
 
 # Local imports
-from file_hash import check_path, console_logger
+from file_hash import FileHandler, console_logger
 
 Base: Any = declarative_base()
 engine = create_engine("sqlite:///hash_sum.db", echo=False)
@@ -27,36 +27,40 @@ class HashSum(Base):
 Base.metadata.create_all(engine)
 
 
-def check_data(file_path: str, result: List[Tuple[str, str]]) -> None:
-    """
-    check result with output[hash_sum file_path OK/NOT OK]
-    :param file_path: directory path
-    :param result: list of tuples[hash_sum, file_path]
-    :return: None
-    """
-    path = check_path(file_path)
-    query = session.query(HashSum).filter(HashSum.file_path == path)
-    try:
-        with open(f"results/{query.first()}") as f:
-            for num, line in enumerate(f):
-                res = "FAILED"
-                if line.split()[0] == result[num][0]:
-                    res = "OK"
-                console_logger.info(f"{line[:-1]} {res}")
-    except FileNotFoundError:
-        console_logger.error("No such file or directory to check in db")
+class DataInteraction:
+    def __init__(self, data: List[Tuple[str, str]], file_path: str):
+        """
+        :param data: list of tuples[hash_sum, file_path]
+        :param file_path: directory path
+        """
+        self.data = data
+        self.file_path = file_path
 
+    def check_data(self) -> None:
+        """
+        check result with output[hash_sum file_path OK/NOT OK]
+        :return: None
+        """
+        path = FileHandler(self.file_path).check_path()
+        query = session.query(HashSum).filter(HashSum.file_path == path)
+        try:
+            with open(f"results/{query.first()}") as f:
+                for num, line in enumerate(f):
+                    res = "FAILED"
+                    if line.split()[0] == self.data[num][0]:
+                        res = "OK"
+                    console_logger.info(f"{line[:-1]} {res}")
+        except FileNotFoundError:
+            console_logger.error("No such file or directory to check in db")
 
-def save_data(data: List[Tuple[str, str]], file_path: str) -> None:
-    """
-    :param data: list of tuples[hash_sum, file_path]
-    :param file_path: directory path
-    :return: None
-    """
-    path = check_path(file_path)
-    with open(f"results/{path}", "w") as f:
-        for hash_sum, file in data:
-            f.write(f"{hash_sum} {file}\n")
-    res = HashSum(file_path=f"{path}")
-    session.add(res)
-    session.commit()
+    def save_data(self) -> None:
+        """
+        :return: None
+        """
+        path = FileHandler(self.file_path).check_path()
+        with open(f"results/{path}", "w") as f:
+            for hash_sum, file in self.data:
+                f.write(f"{hash_sum} {file}\n")
+        res = HashSum(file_path=f"{path}")
+        session.add(res)
+        session.commit()

@@ -7,13 +7,13 @@ import sys
 
 # Local imports
 from file_hash import (
-    file_hash_sum,
-    parse_dir,
-    stdin_hash_sum,
-    print_res,
+    file_hashsum,
+    FileHandler,
     console_logger,
+    print_data,
 )
-from models.database import check_data, save_data
+
+from models.database import DataInteraction
 
 # Related third party imports
 import argparse
@@ -56,22 +56,25 @@ if __name__ == "__main__":
 
     with Pool() as pool:
         if args.files is not sys.stdin:
-            files = parse_dir(args.files)
+            files = FileHandler(args.files).parse_dir()
             logger.debug(
                 f" [files_hash_sum] was called with: files - "
                 f"[{files}], hash_algorithm - [{args.algorithm}]"
             )
             async_res: multiprocessing.pool.MapResult = pool.map_async(
-                partial(file_hash_sum, hash_algorithm=args.algorithm),
+                partial(file_hashsum, hash_alg=args.algorithm),
                 files,
-                callback=print_res if not args.check else None,
+                callback=print_data if not args.check else None,
             )
             async_res.get()
+            data_interaction = DataInteraction(
+                file_path=args.files, data=async_res.get()
+            )
             if args.save:
-                save_data(async_res.get(), file_path=args.files)
+                data_interaction.save_data()
             if args.check:
-                check_data(args.files, async_res.get())
+                data_interaction.check_data()
         else:
-            hash_sum = stdin_hash_sum(args.files, args.algorithm)
-            console_logger.info(hash_sum, "-")
+            hash_sum = file_hashsum(args.files, args.algorithm)
+            console_logger.info(f"{hash_sum} -")
         sys.exit(0)

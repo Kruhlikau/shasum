@@ -2,7 +2,7 @@
 import pytest
 
 # Local imports
-from file_hash import file_hash_sum
+from file_hash import file_hashsum
 
 
 @pytest.mark.parametrize(
@@ -37,7 +37,7 @@ from file_hash import file_hash_sum
     ],
 )
 def test_file_hash_sum_good(file_name, hash_algorithm, expected_result):
-    assert file_hash_sum(file_name, hash_algorithm) == expected_result
+    assert file_hashsum(file_name, hash_algorithm) == expected_result
 
 
 @pytest.mark.parametrize(
@@ -46,4 +46,4 @@ def test_file_hash_sum_good(file_name, hash_algorithm, expected_result):
 )
 def test_type_error(expected_exception, file_name, hash_algorithm):
     with pytest.raises(expected_exception):
-        file_hash_sum(file_name, hash_algorithm)
+        file_hashsum(file_name, hash_algorithm)
