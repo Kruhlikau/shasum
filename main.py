@@ -1,4 +1,5 @@
 # Standard library imports
+import multiprocessing.pool
 from functools import partial
 import hashlib
 import logging
@@ -60,7 +61,7 @@ if __name__ == "__main__":
                 f" [files_hash_sum] was called with: files - "
                 f"[{files}], hash_algorithm - [{args.algorithm}]"
             )
-            async_res = pool.map_async(
+            async_res: multiprocessing.pool.MapResult = pool.map_async(
                 partial(file_hash_sum, hash_algorithm=args.algorithm),
                 files,
                 callback=print_res if not args.check else None,
@@ -70,8 +71,7 @@ if __name__ == "__main__":
                 save_data(async_res.get(), file_path=args.files)
             if args.check:
                 check_data(args.files, async_res.get())
-            sys.exit(0)
         else:
             hash_sum = stdin_hash_sum(args.files, args.algorithm)
             console_logger.info(hash_sum, "-")
-            sys.exit(0)
+        sys.exit(0)

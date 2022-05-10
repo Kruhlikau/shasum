@@ -3,6 +3,7 @@ import hashlib
 import io
 import os
 import logging
+from typing import Tuple, List
 
 console_logger = logging.getLogger(__name__)
 console_logger.setLevel(logging.INFO)
@@ -10,7 +11,7 @@ console_out = logging.StreamHandler()
 console_logger.addHandler(console_out)
 
 
-def file_hash_sum(file_name: str, hash_algorithm: str):
+def file_hash_sum(file_name: str, hash_algorithm: str) -> Tuple[str, str]:
     """
     The function takes a file and a hashing algorithm as arguments,
      returns the hash sum
@@ -25,7 +26,7 @@ def file_hash_sum(file_name: str, hash_algorithm: str):
     return h.hexdigest(), file_name
 
 
-def parse_dir(path: str) -> list:
+def parse_dir(path: str) -> List[str]:
     """
     parser for dirs
     :param path: directory path
@@ -54,7 +55,7 @@ def stdin_hash_sum(stdin: io.TextIOWrapper, hash_algorithm: str) -> str:
     return h.hexdigest()
 
 
-def print_res(data: list) -> None:
+def print_res(data: List[Tuple[str, str]]) -> None:
     """
     :param data: list of tuples[hash_sum, file_path]
     :return: None

@@ -1,5 +1,5 @@
 # Standard library imports
-from typing import Any
+from typing import Any, List, Tuple
 
 # Related third party imports
 from sqlalchemy import create_engine
@@ -27,7 +27,7 @@ class HashSum(Base):
 Base.metadata.create_all(engine)
 
 
-def check_data(file_path: str, result: list) -> None:
+def check_data(file_path: str, result: List[Tuple[str, str]]) -> None:
     """
     check result with output[hash_sum file_path OK/NOT OK]
     :param file_path: directory path
@@ -39,14 +39,15 @@ def check_data(file_path: str, result: list) -> None:
     try:
         with open(f"results/{query.first()}") as f:
             for num, line in enumerate(f):
-                condition = line.split()[0] == result[num][0]
-                res = "OK" if condition else "NOT OK"
+                res = "FAILED"
+                if line.split()[0] == result[num][0]:
+                    res = "OK"
                 console_logger.info(f"{line[:-1]} {res}")
     except FileNotFoundError:
         console_logger.error("No such file or directory to check in db")
 
 
-def save_data(data: list, file_path: str) -> None:
+def save_data(data: List[Tuple[str, str]], file_path: str) -> None:
     """
     :param data: list of tuples[hash_sum, file_path]
     :param file_path: directory path
