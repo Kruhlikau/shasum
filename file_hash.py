@@ -4,6 +4,9 @@ import os
 import logging
 from typing import Tuple, List, Union, Any
 
+# Local imports
+from config import exclude
+
 console_logger = logging.getLogger(__name__)
 console_logger.setLevel(logging.INFO)
 console_out = logging.StreamHandler()
@@ -49,14 +52,7 @@ class FileHandler:
         :return: list of files
         """
         res = []
-        exclude = [
-            "pyc",
-            "git",
-            "idea",
-            "DS_Store",
-            ".pytest_cache",
-            "__pycache__",
-        ]
+
         if os.path.isfile(self.file_path):
             res.append(self.file_path)
 

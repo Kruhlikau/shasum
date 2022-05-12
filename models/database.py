@@ -9,6 +9,7 @@ from sqlalchemy import Column, String, Integer
 
 # Local imports
 from file_hash import FileHandler, console_logger
+from config import __tablename__
 
 Base: Any = declarative_base()
 engine = create_engine("sqlite:///hash_sum.db", echo=False)
@@ -16,7 +17,7 @@ session = sessionmaker(bind=engine)()
 
 
 class HashSum(Base):
-    __tablename__ = "hash_sum"
+    __tablename__ = __tablename__
     id = Column(Integer, primary_key=True)
     file_path = Column(String)
 
