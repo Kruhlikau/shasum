@@ -2,7 +2,7 @@
 import pytest
 
 # Local imports
-from file_hash import file_hashsum
+from file_hash import file_hashsum, print_data
 
 
 @pytest.mark.parametrize(
@@ -47,3 +47,12 @@ def test_file_hash_sum_good(file_name, hash_algorithm, expected_result):
 def test_type_error(expected_exception, file_name, hash_algorithm):
     with pytest.raises(expected_exception):
         file_hashsum(file_name, hash_algorithm)
+
+
+@pytest.mark.parametrize(
+    "failed_data, expected_exception",
+    [(5, TypeError), ([1, 2, 3], TypeError), ({1, 2, 3}, TypeError)],
+)
+def test_print_data(failed_data, expected_exception):
+    with pytest.raises(expected_exception):
+        print_data(failed_data)

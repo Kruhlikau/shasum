@@ -40,23 +40,33 @@ def print_data(data: List[Tuple[str, str]]) -> None:
 
 class FileHandler:
     def __init__(self, file_path: str):
+        self.res: List[str] = []
         self.file_path = file_path
 
-    def parse_dir(self) -> List[str]:
+    def parse_dirs(self, file_path: str) -> List[str]:
         """
-        parser for dirs
-        :return: list of files
+        :param file_path: file for hash calculation
+        :return: Lists of files path
         """
-        res = []
-        if os.path.isfile(self.file_path):
-            res.append(self.file_path)
+        if os.path.isfile(file_path):
+            self.res.append(file_path)
+        else:
+            for i in os.listdir(file_path):
+                if "cache" in i or "git" in i:
+                    continue
+                # if '.git' in i:
+                #     continue
+                if ".idea" in i:
+                    continue
+                if ".DS_Store" in i:
+                    continue
+                new_path = os.path.join(file_path, i)
+                if os.path.isdir(new_path):
+                    self.parse_dirs(new_path)
+                else:
+                    self.res.append(new_path)
 
-        for root, dirs, files in os.walk(self.file_path, topdown=True):
-            for name in files:
-                filepath = os.path.join(root, name)
-                if os.path.exists(filepath):
-                    res.append(filepath)
-        return res
+        return self.res
 
     def check_path(self) -> str:
         """

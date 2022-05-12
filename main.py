@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     with Pool() as pool:
         if args.files is not sys.stdin:
-            files = FileHandler(args.files).parse_dir()
+            files = FileHandler(args.files).parse_dirs(args.files)
             logger.debug(
                 f" [files_hash_sum] was called with: files - "
                 f"[{files}], hash_algorithm - [{args.algorithm}]"
