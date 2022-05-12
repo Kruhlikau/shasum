@@ -43,30 +43,32 @@ class FileHandler:
         self.res: List[str] = []
         self.file_path = file_path
 
-    def parse_dirs(self, file_path: str) -> List[str]:
+    def parse_dirs(self) -> List[str]:
         """
-        :param file_path: file for hash calculation
-        :return: Lists of files path
+        parser for dirs
+        :return: list of files
         """
-        if os.path.isfile(file_path):
-            self.res.append(file_path)
-        else:
-            for i in os.listdir(file_path):
-                if "cache" in i or "git" in i:
-                    continue
-                # if '.git' in i:
-                #     continue
-                if ".idea" in i:
-                    continue
-                if ".DS_Store" in i:
-                    continue
-                new_path = os.path.join(file_path, i)
-                if os.path.isdir(new_path):
-                    self.parse_dirs(new_path)
-                else:
-                    self.res.append(new_path)
+        res = []
+        exclude = [
+            "pyc",
+            "git",
+            "idea",
+            "DS_Store",
+            ".pytest_cache",
+            "__pycache__",
+        ]
+        if os.path.isfile(self.file_path):
+            res.append(self.file_path)
 
-        return self.res
+        for root, dirs, files in os.walk(self.file_path, topdown=True):
+            for ex in exclude:
+                if ex in dirs:
+                    dirs.remove(ex)
+            for name in files:
+                filepath = os.path.join(root, name)
+                if os.path.exists(filepath):
+                    res.append(filepath)
+        return res
 
     def check_path(self) -> str:
         """
