@@ -72,5 +72,10 @@ class FileHandler:
         """
         if os.path.isfile(self.file_path):
             return f'{self.file_path.split("/")[-1].split(".")[0]}.txt'
-        else:
+
+        elif os.path.isdir(self.file_path):
             return f'{self.file_path.split("/")[-2]}.txt'
+
+        elif not os.path.exists(self.file_path):
+            raise FileNotFoundError
+        return ""

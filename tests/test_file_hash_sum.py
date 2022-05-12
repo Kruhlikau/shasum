@@ -2,7 +2,9 @@
 import pytest
 
 # Local imports
-from file_hash import file_hashsum, print_data
+# from models.database import HashSum
+
+from file_hash import file_hashsum, print_data, FileHandler
 
 
 @pytest.mark.parametrize(
@@ -56,3 +58,87 @@ def test_type_error(expected_exception, file_name, hash_algorithm):
 def test_print_data(failed_data, expected_exception):
     with pytest.raises(expected_exception):
         print_data(failed_data)
+
+
+@pytest.mark.parametrize(
+    "file_path, expected_result",
+    [
+        (
+            "/Users/deadsage14235icloud.com/Desktop/"
+            "sncsoft_workflow/shasum/tests/test_data/",
+            [
+                "/Users/deadsage14235icloud.com/Desk"
+                "top/sncsoft_workflow/shasum/tests/test_data/test.txt"
+            ],
+        ),
+        (
+            "/Users/deadsage14235icloud.com/"
+            "Desktop/sncsoft_workflow/shasum/"
+            "tests",
+            [
+                "/Users/deadsage14235icloud.com/Desktop/"
+                "sncsoft_workflow/shasum/tests/hash_sum.db",
+                "/Users/deadsage14235icloud.com/Desktop/"
+                "sncsoft_workflow/shasum/tests/__init__.py",
+                "/Users/deadsage14235icloud.com/Desktop/"
+                "sncsoft_workflow/shasum/tests/test_file_hash_sum.py",
+                "/Users/deadsage14235icloud.com/Desktop/"
+                "sncsoft_workflow/shasum/tests/db_setup.py",
+                "/Users/deadsage14235icloud.com/Desktop/"
+                "sncsoft_workflow/shasum/tests/test_data/test.txt",
+            ],
+        ),
+    ],
+)
+def test_parse_dirs(file_path, expected_result):
+    assert FileHandler(file_path).parse_dirs() == expected_result
+    assert FileHandler(file_path).parse_dirs() != []
+
+
+@pytest.mark.parametrize(
+    "expected_exception, file_path", [(TypeError, 123), (TypeError, {123})]
+)
+def test_parse_dirs_error(expected_exception, file_path):
+    with pytest.raises(expected_exception):
+        FileHandler(file_path).parse_dirs()
+
+
+@pytest.mark.parametrize(
+    "file_path, expected_result",
+    [
+        (
+            "/Users/deadsage14235icloud.com/Desktop/"
+            "sncsoft_workflow/shasum/tests/test_data/",
+            "test_data.txt",
+        ),
+        (
+            "/Users/deadsage14235icloud.com/Desktop/"
+            "sncsoft_workflow/shasum/tests/test_data/test.txt",
+            "test.txt",
+        ),
+    ],
+)
+def test_check_data(file_path, expected_result):
+    assert FileHandler(file_path).check_path() == expected_result
+
+
+@pytest.mark.parametrize(
+    "file_path, expected_exception",
+    [
+        (123, FileNotFoundError),
+        (
+            "/Users/deadsage14235icloud.com/Desktop/"
+            "sncsoft_workflow/shasum/tests/test_data/tt.txt",
+            FileNotFoundError,
+        ),
+    ],
+)
+def test_check_data_error(file_path, expected_exception):
+    with pytest.raises(expected_exception):
+        FileHandler(file_path).check_path()
+
+
+# def test_hashsum_create(db_session):
+#     data = HashSum(file_path="123")
+#     db_session.add(data)
+#     db_session.commit()
