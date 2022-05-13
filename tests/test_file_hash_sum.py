@@ -1,8 +1,10 @@
 # Related third party imports
 import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, scoped_session
 
 # Local imports
-# from models.database import HashSum
+from models.database import HashSum
 
 from file_hash import file_hashsum, print_data, FileHandler
 
@@ -64,29 +66,12 @@ def test_print_data(failed_data, expected_exception):
     "file_path, expected_result",
     [
         (
-            "/Users/deadsage14235icloud.com/Desktop/"
-            "sncsoft_workflow/shasum/tests/test_data/",
-            [
-                "/Users/deadsage14235icloud.com/Desk"
-                "top/sncsoft_workflow/shasum/tests/test_data/test.txt"
-            ],
+            "tests/test_data/",
+            ["tests/test_data/test.txt"],
         ),
         (
-            "/Users/deadsage14235icloud.com/"
-            "Desktop/sncsoft_workflow/shasum/"
-            "tests",
-            [
-                "/Users/deadsage14235icloud.com/Desktop/"
-                "sncsoft_workflow/shasum/tests/hash_sum.db",
-                "/Users/deadsage14235icloud.com/Desktop/"
-                "sncsoft_workflow/shasum/tests/__init__.py",
-                "/Users/deadsage14235icloud.com/Desktop/"
-                "sncsoft_workflow/shasum/tests/test_file_hash_sum.py",
-                "/Users/deadsage14235icloud.com/Desktop/"
-                "sncsoft_workflow/shasum/tests/db_setup.py",
-                "/Users/deadsage14235icloud.com/Desktop/"
-                "sncsoft_workflow/shasum/tests/test_data/test.txt",
-            ],
+            "tests/test_data/test.txt",
+            ["tests/test_data/test.txt"],
         ),
     ],
 )
@@ -107,13 +92,11 @@ def test_parse_dirs_error(expected_exception, file_path):
     "file_path, expected_result",
     [
         (
-            "/Users/deadsage14235icloud.com/Desktop/"
-            "sncsoft_workflow/shasum/tests/test_data/",
+            "tests/test_data/",
             "test_data.txt",
         ),
         (
-            "/Users/deadsage14235icloud.com/Desktop/"
-            "sncsoft_workflow/shasum/tests/test_data/test.txt",
+            "tests/test_data/test.txt",
             "test.txt",
         ),
     ],
@@ -127,8 +110,7 @@ def test_check_data(file_path, expected_result):
     [
         (123, FileNotFoundError),
         (
-            "/Users/deadsage14235icloud.com/Desktop/"
-            "sncsoft_workflow/shasum/tests/test_data/tt.txt",
+            "tests/test_data/tt.txt",
             FileNotFoundError,
         ),
     ],
@@ -138,7 +120,45 @@ def test_check_data_error(file_path, expected_exception):
         FileHandler(file_path).check_path()
 
 
-# def test_hashsum_create(db_session):
-#     data = HashSum(file_path="123")
-#     db_session.add(data)
-#     db_session.commit()
+@pytest.fixture(scope="session")
+def db_engine():
+    """yields a SQLAlchemy engine which is suppressed after the test session"""
+    engine_ = create_engine("sqlite:///hash_sum.db", echo=False)
+
+    yield engine_
+
+    engine_.dispose()
+
+
+@pytest.fixture(scope="session")
+def db_session_factory(db_engine):
+    """returns a SQLAlchemy scoped session factory"""
+    return scoped_session(sessionmaker(bind=db_engine))
+
+
+@pytest.fixture(scope="function")
+def db_session(db_session_factory):
+    """yields a SQLAlchemy connection which is rollbacked after the test"""
+    session_ = db_session_factory()
+
+    yield session_
+
+    session_.rollback()
+    session_.close()
+
+
+@pytest.fixture(scope="function")
+def dataset(db_session):
+    file_path_1 = HashSum(file_path="test_data/res/1")
+    file_path_2 = HashSum(file_path="test_data/res/2")
+    db_session.add(file_path_1)
+    db_session.add(file_path_2)
+    db_session.commit()
+    yield db_session
+
+
+# def test_database(dataset):
+#     session = dataset
+#     assert len(session.query(HashSum).all()) == 2
+# query = session.query(HashSum).filter(HashSum.file_path == "tests/results/1")
+# assert query.first().file_path == "tests/results/1"
