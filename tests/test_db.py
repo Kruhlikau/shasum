@@ -102,7 +102,6 @@ class TestDB:
     def test_save_check_data(self, data, file_path, expected_result):
         dataset = DataInteraction(file_path=file_path, data=data)
         dataset.db_session = self.session
-        print(self.session.query(HashSumTest).count())
         assert dataset.save_data(db=HashSumTest) is True
         assert dataset.check_data(db=HashSumTest) == [expected_result]
 
