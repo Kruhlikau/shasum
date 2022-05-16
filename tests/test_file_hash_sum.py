@@ -1,11 +1,7 @@
 # Related third party imports
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
 
 # Local imports
-from models.database import HashSum
-
 from file_hash import file_hashsum, print_data, FileHandler
 
 
@@ -118,47 +114,3 @@ def test_check_data(file_path, expected_result):
 def test_check_data_error(file_path, expected_exception):
     with pytest.raises(expected_exception):
         FileHandler(file_path).check_path()
-
-
-@pytest.fixture(scope="session")
-def db_engine():
-    """yields a SQLAlchemy engine which is suppressed after the test session"""
-    engine_ = create_engine("sqlite:///hash_sum.db", echo=True)
-
-    yield engine_
-
-    engine_.dispose()
-
-
-@pytest.fixture(scope="session")
-def db_session_factory(db_engine):
-    """returns a SQLAlchemy scoped session factory"""
-    return scoped_session(sessionmaker(bind=db_engine))
-
-
-@pytest.fixture(scope="session")
-def db_session(db_session_factory):
-    """yields a SQLAlchemy connection which is rollbacked after the test"""
-    session_ = db_session_factory()
-
-    yield session_
-
-    session_.rollback()
-    session_.close()
-
-
-@pytest.fixture(scope="session")
-def dataset(db_session):
-    file_path_1 = HashSum(file_path="test_data/res/1")
-    file_path_2 = HashSum(file_path="test_data/res/2")
-    db_session.add(file_path_1)
-    db_session.add(file_path_2)
-    db_session.commit()
-    yield db_session
-
-
-# def test_database(dataset):
-#     session = dataset
-#     assert len(session.query(HashSum).all()) == 2
-# query = session.query(HashSum).filter(HashSum.file_path == "tests/results/1")
-# assert query.first().file_path == "tests/results/1"
