@@ -53,9 +53,6 @@ class TestDB:
         TestBase.metadata.create_all(self.engine)
         self.dataset()
 
-    def teardown(self):
-        TestBase.metadata.drop_all(bind=self.engine)
-
     def test_dataset(self):
         assert self.session.query(HashSumTest).count() == 2
 
@@ -108,3 +105,6 @@ class TestDB:
         print(self.session.query(HashSumTest).count())
         assert dataset.save_data(db=HashSumTest) is True
         assert dataset.check_data(db=HashSumTest) == [expected_result]
+
+    def teardown(self):
+        TestBase.metadata.drop_all(bind=self.engine)
