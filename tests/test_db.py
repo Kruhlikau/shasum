@@ -3,15 +3,15 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm.session import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer
+import pytest
 
 # Standard library imports
 from typing import Any
+from datetime import date
 
 # Local imports
 from config import __tablename__
-
-# Standard library imports
-from datetime import date
+from models.database import DataInteraction
 
 TestBase: Any = declarative_base()
 
@@ -43,8 +43,8 @@ class TestDB:
 
     def dataset(self):
         """initial dataset for tests"""
-        file_path_1 = HashSumTest(file_path="test_data/res/1")
-        file_path_2 = HashSumTest(file_path="test_data/res/2")
+        file_path_1 = HashSumTest(file_path="tests_results")
+        file_path_2 = HashSumTest(file_path="testdata/res/2")
         self.session.add_all([file_path_1, file_path_2])
         self.session.commit()
 
@@ -60,14 +60,14 @@ class TestDB:
         assert self.session.query(HashSumTest).count() == 2
 
     def test_dataset_first(self):
-        exp_res = "test_data/res/1"
+        exp_res = "tests_results"
         assert str(self.session.query(HashSumTest).first()) == exp_res
 
     def test_add_item(self):
-        file_path_3 = HashSumTest(file_path="test_data/res/3")
+        file_path_3 = HashSumTest(file_path="testdata/res/3")
         self.session.add(file_path_3)
         self.session.commit()
-        assert str(self.session.query(HashSumTest).get(3)) == "test_data/res/3"
+        assert str(self.session.query(HashSumTest).get(3)) == "testdata/res/3"
 
     def test_delete_item(self):
         pre_items_count = int(self.session.query(HashSumTest).count())
@@ -83,3 +83,28 @@ class TestDB:
         self.session.add(first_item)
         self.session.commit()
         assert str(self.session.query(HashSumTest).first().file_path) == "123"
+
+    @pytest.mark.parametrize(
+        "data, file_path, expected_result",
+        [
+            (
+                [
+                    (
+                        "8dcfb1fe3591de419bae817d26c11d9f",
+                        "tests/testdata/test.txt",
+                    ),
+                ],
+                "tests/testdata/",
+                (
+                    "8dcfb1fe3591de419bae817d26c11d9f tests/testdata/test.txt",
+                    "OK",
+                ),
+            )
+        ],
+    )
+    def test_save_check_data(self, data, file_path, expected_result):
+        dataset = DataInteraction(file_path=file_path, data=data)
+        dataset.db_session = self.session
+        print(self.session.query(HashSumTest).count())
+        assert dataset.save_data(db=HashSumTest) is True
+        assert dataset.check_data(db=HashSumTest) == [expected_result]
