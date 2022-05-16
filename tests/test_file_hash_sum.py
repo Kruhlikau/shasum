@@ -123,7 +123,7 @@ def test_check_data_error(file_path, expected_exception):
 @pytest.fixture(scope="session")
 def db_engine():
     """yields a SQLAlchemy engine which is suppressed after the test session"""
-    engine_ = create_engine("sqlite:///hash_sum.db", echo=False)
+    engine_ = create_engine("sqlite:///hash_sum.db", echo=True)
 
     yield engine_
 
@@ -136,7 +136,7 @@ def db_session_factory(db_engine):
     return scoped_session(sessionmaker(bind=db_engine))
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="session")
 def db_session(db_session_factory):
     """yields a SQLAlchemy connection which is rollbacked after the test"""
     session_ = db_session_factory()
@@ -147,7 +147,7 @@ def db_session(db_session_factory):
     session_.close()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="session")
 def dataset(db_session):
     file_path_1 = HashSum(file_path="test_data/res/1")
     file_path_2 = HashSum(file_path="test_data/res/2")
