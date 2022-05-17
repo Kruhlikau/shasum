@@ -13,6 +13,7 @@ import os
 # Local imports
 from config import __tablename__
 from models.database import DataInteraction
+from tests.static.utils import test_data
 
 TestBase: Any = declarative_base()
 
@@ -55,6 +56,11 @@ class TestDB:
         TestBase.metadata.create_all(self.engine)
         self.dataset()
 
+    def setup_test_dataset(self, data, file_path):
+        test_dataset = DataInteraction(file_path=file_path, data=data)
+        test_dataset.db_session = self.session
+        return test_dataset
+
     def test_dataset(self):
         assert self.session.query(HashSumTest).count() == 2
 
@@ -83,29 +89,18 @@ class TestDB:
         self.session.commit()
         assert str(self.session.query(HashSumTest).first().file_path) == "123"
 
-    @pytest.mark.parametrize(
-        "data, file_path, expected_result",
-        [
-            (
-                [
-                    (
-                        "8dcfb1fe3591de419bae817d26c11d9f",
-                        "tests/testdata/test.txt",
-                    ),
-                ],
-                "tests/testdata/",
-                (
-                    "8dcfb1fe3591de419bae817d26c11d9f tests/testdata/test.txt",
-                    "OK",
-                ),
-            )
-        ],
-    )
-    def test_save_check_data(self, data, file_path, expected_result):
-        dataset = DataInteraction(file_path=file_path, data=data)
-        dataset.db_session = self.session
-        assert dataset.save_data(db=HashSumTest) is True
-        assert dataset.check_data(db=HashSumTest) == [expected_result]
+    @pytest.mark.parametrize("data, file_path, expected_result", test_data)
+    def test_save_data(self, data, file_path, expected_result):
+        test_dataset = self.setup_test_dataset(file_path=file_path, data=data)
+        assert test_dataset.save_data(db=HashSumTest) is True
+        os.remove(f"results/{test_dataset.path}")
+
+    @pytest.mark.parametrize("data, file_path, expected_result", test_data)
+    def test_check_data(self, data, file_path, expected_result):
+        test_dataset = self.setup_test_dataset(file_path=file_path, data=data)
+        test_dataset.save_data(db=HashSumTest)
+        assert test_dataset.check_data(db=HashSumTest) == [expected_result]
+        os.remove(f"results/{test_dataset.path}")
 
     def teardown(self):
         TestBase.metadata.drop_all(bind=self.engine)
