@@ -8,6 +8,7 @@ import pytest
 # Standard library imports
 from typing import Any
 from datetime import date
+import os
 
 # Local imports
 from config import __tablename__
@@ -31,8 +32,8 @@ class TestDB:
         returns a SQLAlchemy engine
          which is suppressed after the test session
         """
-        db_server = "sqlite:///hash_sum_test.db"
-        self.engine = create_engine(db_server)
+        self.db_server = "sqlite:///hash_sum_test.db"
+        self.engine = create_engine(self.db_server)
         return self.engine
 
     def db_session(self):
@@ -49,6 +50,7 @@ class TestDB:
         self.session.commit()
 
     def setup(self):
+        """setup test db with test dataset"""
         self.db_session()
         TestBase.metadata.create_all(self.engine)
         self.dataset()
@@ -107,3 +109,5 @@ class TestDB:
 
     def teardown(self):
         TestBase.metadata.drop_all(bind=self.engine)
+        db_file = self.db_server.split("///")[-1]
+        os.remove(db_file)
